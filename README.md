@@ -15,7 +15,7 @@ Pro úspěšné zobrazení obrazu je třeba generovat impulsy vertikální a hor
 ![Diagram časování signálů](images/readme/VGA_timing_diagram.jpg)
 
 ### Generování obrazu
-Obraz je z desky do monitoru přenesen pomocí analogových napěťových úrovní jednotlivých RGB složek. Ze schematu desky mužeme vyvodit že každá barva má bitovou hloubku 4 bity, jednoduchým výpočtem dostaneme $2^4 = 16$ odstínů jedné barvy, celkový počet odstínů je $ (2^4)^3 = 4096$ barev. Výsledné napětí je výsledkem odporové sčítačky napětí kde odpory ve větvích udávájí váhu jednotlivého bitu.
+Obraz je z desky do monitoru přenesen pomocí analogových napěťových úrovní jednotlivých RGB složek. Ze schematu desky mužeme vyvodit že každá barva má bitovou hloubku 4 bity, jednoduchým výpočtem dostaneme $2^4 = 16$ odstínů jedné barvy, celkový počet je 4096 barev. Výsledné napětí je výsledkem odporové sčítačky napětí kde odpory ve větvích udávájí váhu jednotlivého bitu.
 
 ![Schema zapojení VGA konektoru na FPGA desce](images/readme/zapojení_VGA_nexys.png)
 
@@ -25,6 +25,9 @@ Generování 4bitových vektorů pro jednotlivé barvy jsou výsledkem kombinač
 
 ## Zdroje
 https://electronics.stackexchange.com/questions/295130/vga-timing-sync-porch-positions-fpga
+
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax
+
 https://digilent.com/reference/_media/programmable-logic/nexys-a7/nexys-a7-d3-sch.pdf
+
 https://digilent.com/reference/programmable-logic/nexys-a7/reference-manual
