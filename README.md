@@ -23,6 +23,7 @@ Generování 4bitových vektorů pro jednotlivé barvy jsou výsledkem kombinač
 
 ## Schéma zapojení 
 Vrstva top_level je zapojena dle přiloženého schématu níže. Skládá se z bloků PLL, elegatně řešící generaci 40MHz hodinového pulzu, na který je zapojen čítač horizontální osy monitoru. Stavy přetečení horizontálního čítače pak sleduje a vertikální čítač. Oba čítače lze snadno resetovat BTNC tlačítkem, jež je integrováno do desky. 
+![Schéma zapojení vrstvy top_level](images/readme/schema_zapojeni.png)
 
 
 
