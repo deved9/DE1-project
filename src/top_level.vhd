@@ -4,7 +4,7 @@ library ieee;
 entity top_level is
   port (
     clk100mhz : in    std_logic;
-    sw        : in    std_logic_vector(7 downto 0);
+    sw        : in    std_logic_vector(6 downto 0);
     btnc      : in    std_logic;
     btnu      : in    std_logic;
     btnl      : in    std_logic;
