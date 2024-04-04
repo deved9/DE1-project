@@ -14,9 +14,9 @@ entity counter is
     visible_area : integer := 800
   );
   port (
-    clk      : in    std_logic;                           --! Main clock
-    rst      : in    std_logic;                           --! High-active synchronous reset
-    count    : out   std_logic_vector(nbit - 1 downto 0); --! Counter value
+    clk      : in    std_logic;                           
+    rst      : in    std_logic;                           
+    count    : out   std_logic_vector(nbit - 1 downto 0); 
     sync     : out   std_logic;
     display  : out   std_logic;
     overflow : out   std_logic
