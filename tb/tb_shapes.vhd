@@ -5,11 +5,12 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+USE IEEE.math_real.ALL;
 
-entity tb_square is
-end tb_square;
+entity tb_shapes is
+end tb_shapes;
 
-architecture tb of tb_square is
+architecture tb of tb_shapes is
 
   constant v_nbit : integer := 10;
   constant h_nbit : integer := 11;
@@ -34,23 +35,31 @@ architecture tb of tb_square is
     );
   end component;
 
-  component square
+  component shapes is
     generic(
-        v_nbit: integer;
-        h_nbit: integer;
-        rowOffset: integer;
-        colOffset: integer;
-        size: integer;
-        R: integer := 15;
-        G: integer := 15;
-        B: integer := 15
+            scr_width: integer := 800;
+            scr_height: integer := 600;
+            size: integer := 250;
+            v_nbit: integer := 10;
+            h_nbit: integer := 11
         );
-    port (rowNum : in std_logic_vector (v_nbit - 1 downto 0);
-          colNum : in std_logic_vector (h_nbit - 1 downto 0);
-          colorR : out std_logic_vector (3 downto 0);
-          colorG : out std_logic_vector (3 downto 0);
-          colorB : out std_logic_vector (3 downto 0));
-end component;
+    port (
+        rowNum : in std_logic_vector( v_nbit - 1 downto 0);
+        colNum: in std_logic_vector( h_nbit - 1 downto 0);
+        count : in std_logic;
+        move_u : in std_logic;
+        move_d : in std_logic;
+        move_l : in std_logic;
+        move_r : in std_logic;
+        shape_sel : in std_logic;
+        colorRbackground : in std_logic_vector( 3 downto 0);
+        colorGbackground : in std_logic_vector( 3 downto 0);
+        colorBbackground : in std_logic_vector( 3 downto 0);
+        colorRout: out std_logic_vector( 3 downto 0);
+        colorGout: out std_logic_vector( 3 downto 0);
+        colorBout: out std_logic_vector( 3 downto 0)
+      );
+  end component;
 
   signal sig_clk40mhz   : std_logic;
   signal sig_h_count    : std_logic_vector(10 downto 0);
@@ -73,7 +82,11 @@ end component;
   signal   tbclock    : std_logic := '0';
   signal   tbsimended : std_logic := '0';
 
+  signal sig_move : std_logic := '0';
+  signal sig_def_color : std_logic_vector(3 downto 0) := b"0000";
+
 begin
+
   h_couter : component counter
     generic map (
       nbit         => h_nbit,
@@ -110,19 +123,30 @@ begin
       overflow => sig_v_overflow
     );
 
-    sq : component square
-    generic map(
-        v_nbit => v_nbit,
-        h_nbit => h_nbit,
-        rowOffset => 16,
-        colOffset => 16,
-        size => 250
-    )
-    port map (rowNum => sig_v_count,
-              colNum => sig_h_count,
-              colorR => sig_colorR,
-              colorG => sig_colorG,
-              colorB => sig_colorB);
+    shape_gen: component shapes
+      generic map(
+              scr_width => 800,
+              scr_height => 600,
+              size => 250,
+              v_nbit => 10,
+              h_nbit => 11
+          )
+      Port map(
+          rowNum => sig_v_count,
+          colNum => sig_h_count,
+          count => vga_vs,
+          move_u => '0',
+          move_d => sig_move,
+          move_l => '0',
+          move_r => '0',
+          shape_sel => '1',
+          colorRbackground => sig_def_color,
+          colorGbackground => sig_def_color,
+          colorBbackground => sig_def_color,
+          colorRout => sig_colorR,
+          colorGout => sig_colorG,
+          colorBout => sig_colorB
+        );
 
         -- Clock generation
     tbclock <= not tbclock after tbperiod / 2 when tbsimended /= '1' else '0';
@@ -145,8 +169,11 @@ begin
     sig_rst <= '1';
     wait for 100 ns;
     sig_rst <= '0';
+    sig_move <= '1';
     wait for 16579200 ns;
-
+    wait for 100 ns;
+    sig_move <= '0';
+    wait for 16579200 ns;
     -- Stop the clock and hence terminate the simulation
     tbsimended <= '1';
     wait;

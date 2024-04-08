@@ -5,11 +5,10 @@ USE IEEE.math_real.ALL;
 
 entity square is
     generic(
-        v_nbit: integer := 11;
-        h_nbit: integer := 10;
-        rowOffset: integer := 0;
-        colOffset: integer := 0;
+        v_nbit: integer := 10;
+        h_nbit: integer := 11;
         size: integer := 250;
+        -- default color is white
         R: integer := 15;
         G: integer := 15;
         B: integer := 15
@@ -17,11 +16,16 @@ entity square is
     Port (
         rowNum: in std_logic_vector( v_nbit - 1 downto 0);
         colNum: in std_logic_vector( h_nbit - 1 downto 0);
-        colorR: out std_logic_vector( 3 downto 0);
-        colorG: out std_logic_vector( 3 downto 0);
-        colorB: out std_logic_vector( 3 downto 0)
+        rowOffset: in std_logic_vector( v_nbit - 1 downto 0);
+        colOffset: in std_logic_vector( h_nbit - 1 downto 0);
+        colorRin : in std_logic_vector( 3 downto 0);
+        colorGin : in std_logic_vector( 3 downto 0);
+        colorBin : in std_logic_vector( 3 downto 0);
+        colorRout: out std_logic_vector( 3 downto 0);
+        colorGout: out std_logic_vector( 3 downto 0);
+        colorBout: out std_logic_vector( 3 downto 0)
       );
-  end SQUARE;
+  end square;
 
   architecture behavioral of square is
 
@@ -33,24 +37,25 @@ entity square is
     process (rowNum, colNum)
     begin
         rowInRange <= '0';
-        if ((to_integer(unsigned(rowNum)) >= rowOffset) and (to_integer(unsigned(rowNum)) < (rowOffset + size))) then
+        if ((unsigned(rowNum) >= unsigned(rowOffset)) and (unsigned(rowNum) <= (unsigned(rowOffset) + size))) then
             rowInRange <= '1';
         end if;
 
         colInRange <= '0';
-        if ((to_integer(unsigned(colNum)) >= colOffset) and (to_integer(unsigned(colNum)) < (colOffset + size))) then
+        if ((unsigned(colNum) >= unsigned(colOffset)) and (unsigned(colNum) <= (unsigned(colOffset) + size))) then
             colInRange <= '1';
         end if;
 
-
+        -- draw shape over background
         if (rowInRange = '1' and colInRange = '1') then
-            colorR <= std_logic_vector(to_unsigned(R, colorR'length));
-            colorG <= std_logic_vector(to_unsigned(G, colorG'length));
-            colorB <= std_logic_vector(to_unsigned(B, colorB'length));
+            colorRout <= std_logic_vector(to_unsigned(R, colorRout'length));
+            colorGout <= std_logic_vector(to_unsigned(G, colorGout'length));
+            colorBout <= std_logic_vector(to_unsigned(B, colorBout'length));
         else
-            colorR <= b"0000";
-            colorG <= b"0000";
-            colorB <= b"0000";
+            -- pass background through unchanged
+            colorRout <= colorRin;
+            colorGout <= colorGin;
+            colorBout <= colorBin;
         end if;
     end process;
 
