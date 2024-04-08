@@ -4,7 +4,7 @@ library ieee;
 entity top_level is
   port (
     clk100mhz : in    std_logic;
-    sw        : in    std_logic_vector(6 downto 0);
+    sw        : in    std_logic_vector(15 downto 0);
     btnc      : in    std_logic;
     btnu      : in    std_logic;
     btnl      : in    std_logic;
@@ -46,17 +46,49 @@ architecture behavioral of top_level is
     );
   end component;
 
+  component shapes is
+    generic(
+            scr_width: integer := 800;
+            scr_height: integer := 600;
+            size: integer := 250;
+            v_nbit: integer := 10;
+            h_nbit: integer := 11
+        );
+    Port (
+        rowNum : in std_logic_vector( v_nbit - 1 downto 0);
+        colNum: in std_logic_vector( h_nbit - 1 downto 0);
+        count : in std_logic;
+        move_u : in std_logic;
+        move_d : in std_logic;
+        move_l : in std_logic;
+        move_r : in std_logic;
+        shape_sel : in std_logic;
+        colorRbackground : in std_logic_vector( 3 downto 0);
+        colorGbackground : in std_logic_vector( 3 downto 0);
+        colorBbackground : in std_logic_vector( 3 downto 0);
+        colorRout: out std_logic_vector( 3 downto 0);
+        colorGout: out std_logic_vector( 3 downto 0);
+        colorBout: out std_logic_vector( 3 downto 0)
+      );
+  end component;
+
   signal sig_clk40mhz   : std_logic;
+
   signal sig_h_count    : std_logic_vector(10 downto 0);
   signal sig_v_count    : std_logic_vector(10 downto 0);
+  
   signal sig_h_overflow : std_logic;
-
-  --! HAVEN'T BEEN USED YET
-  signal sig_h_sync     : std_logic;
+  signal sig_v_overflow : std_logic;
+  
+  signal sig_h_sync     : std_logic;  -- Not used
   signal sig_v_sync     : std_logic;
+
   signal sig_h_display  : std_logic;
   signal sig_v_display  : std_logic;
-  signal sig_v_overflow : std_logic;
+
+  signal sig_colorR : std_logic_vector (3 downto 0);
+  signal sig_colorG : std_logic_vector (3 downto 0);
+  signal sig_colorB : std_logic_vector (3 downto 0);
 
 begin
 
@@ -97,9 +129,41 @@ begin
       clk      => sig_h_overflow,
       rst      => btnc,
       count    => sig_v_count,
-      sync     => vga_vs,
+      sync     => sig_v_sync,
       display  => sig_v_display,
       overflow => sig_v_overflow
     );
+
+  shape_generator: component shapes
+    generic map (
+      scr_width => 800,
+      scr_height => 600,
+      size => 250,
+      v_nbit => 10,
+      h_nbit => 11
+    )
+    port map (
+      rowNum => sig_v_count,
+      colNum => sig_h_count,
+      count => sig_v_sync,
+      move_u => BTNU,
+      move_d => BTND,
+      move_l => BTNL,
+      move_r => BTNR,
+      shape_sel => SW(15),
+      colorRbackground => b"0000",
+      colorGbackground => b"0000",
+      colorBbackground => b"0000",
+      colorRout => sig_colorR,
+      colorGout => sig_colorG,
+      colorBout => sig_colorB
+    );
+
+    vga_vs <= sig_v_sync;
+
+    -- DO NOT output color when outside display area
+    vga_r <= sig_colorR when (sig_v_display = '1' and sig_h_display = '1') else b"0000";
+    vga_g <= sig_colorG when (sig_v_display = '1' and sig_h_display = '1') else b"0000";
+    vga_b <= sig_colorB when (sig_v_display = '1' and sig_h_display = '1') else b"0000";
 
 end architecture behavioral;
