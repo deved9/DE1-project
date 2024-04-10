@@ -62,7 +62,7 @@ architecture behavioral of top_level is
         move_d : in std_logic;
         move_l : in std_logic;
         move_r : in std_logic;
-        shape_sel : in std_logic;
+        shape_sel : in std_logic_vector(1 downto 0);
         colorRbackground : in std_logic_vector( 3 downto 0);
         colorGbackground : in std_logic_vector( 3 downto 0);
         colorBbackground : in std_logic_vector( 3 downto 0);
@@ -150,7 +150,7 @@ begin
       move_d => BTND,
       move_l => BTNL,
       move_r => BTNR,
-      shape_sel => SW(15),
+      shape_sel => SW(15 downto 14),
       colorRbackground => b"0000",
       colorGbackground => b"0000",
       colorBbackground => b"0000",

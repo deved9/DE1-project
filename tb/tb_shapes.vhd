@@ -51,7 +51,7 @@ architecture tb of tb_shapes is
         move_d : in std_logic;
         move_l : in std_logic;
         move_r : in std_logic;
-        shape_sel : in std_logic;
+        shape_sel : in std_logic_vector(1 downto 0);
         colorRbackground : in std_logic_vector( 3 downto 0);
         colorGbackground : in std_logic_vector( 3 downto 0);
         colorBbackground : in std_logic_vector( 3 downto 0);
@@ -85,6 +85,7 @@ architecture tb of tb_shapes is
   signal sig_move : std_logic := '0';
   signal sig_def_color : std_logic_vector(3 downto 0) := b"0000";
 
+  signal sig_shape_sel : std_logic_vector(1 downto 0);
 begin
 
   h_couter : component counter
@@ -139,7 +140,7 @@ begin
           move_d => sig_move,
           move_l => '0',
           move_r => '0',
-          shape_sel => '1',
+          shape_sel => sig_shape_sel,
           colorRbackground => sig_def_color,
           colorGbackground => sig_def_color,
           colorBbackground => sig_def_color,
@@ -156,13 +157,14 @@ begin
 
     stimuli : process is
     begin
-
+    sig_shape_sel <= b"01";
     -- Reset generation
     -- EDIT: Check that rst is really your reset signal
     sig_rst <= '1';
     wait for 100 ns;
     sig_rst <= '0';
     wait for 100 ns;
+    
 
     -- EDIT Add stimuli here
     wait for 100 * tbperiod;
@@ -170,6 +172,7 @@ begin
     wait for 100 ns;
     sig_rst <= '0';
     sig_move <= '1';
+    sig_shape_sel <= b"10";
     wait for 16579200 ns;
     wait for 100 ns;
     sig_move <= '0';
