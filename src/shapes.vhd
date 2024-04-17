@@ -81,7 +81,7 @@ entity shapes is
       signal v_offset : unsigned(v_nbit-1 downto 0) := (others => '0');
       signal h_offset : unsigned(h_nbit-1 downto 0) := (others => '0');
 
-      signal sig_shape_sel : std_logic_vector(1 downto 0) := b"00";
+      signal sig_shape_sel : std_logic_vector(1 downto 0);
 
       signal colorRsq, colorGsq, colorBsq : std_logic_vector(3 downto 0);
 
@@ -136,6 +136,23 @@ entity shapes is
             colorBout => colorBtr
         );
 
+    process (colNum)
+    begin
+          case sig_shape_sel is
+                when "10" =>
+                    colorRout <= colorRtr;
+                    colorGout <= colorGtr;
+                    colorBout <= colorBtr;
+                when "01" =>
+                    colorRout <= colorRsq;
+                    colorGout <= colorGsq;
+                    colorBout <= colorBsq;
+                when others =>
+                    colorRout <= colorRbackground;
+                    colorGout <= colorGbackground;
+                    colorBout <= colorBbackground;
+                end case;
+    end process;
 
     process (count)
     begin
@@ -147,18 +164,15 @@ entity shapes is
                 v_offset <= v_offset + 1;
             end if;  
             if (move_l = '1' and (to_integer(unsigned(h_offset)) > 1)) then
-                v_offset <= v_offset - 1;
+                h_offset <= h_offset - 1;
             end if;
             if (move_r = '1' and (to_integer(unsigned(h_offset + size + 1)) < scr_width)) then
-                v_offset <= v_offset + 1;
+                h_offset <= h_offset + 1;
             end if;
 
             sig_shape_sel <= shape_sel;
+           
         end if;
     end process;
-
-    colorRout <= colorRtr when sig_shape_sel = b"01" else colorRtr when sig_shape_sel = b"10" else colorRbackground;
-    colorGout <= colorGtr when sig_shape_sel = b"01" else colorGtr when sig_shape_sel = b"10" else colorGbackground;
-    colorBout <= colorBtr when sig_shape_sel = b"01" else colorBtr when sig_shape_sel = b"10" else colorBbackground;
 
   end architecture;
