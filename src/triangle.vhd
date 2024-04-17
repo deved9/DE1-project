@@ -29,26 +29,31 @@ end triangle;
 
 architecture bahavioral of triangle is
 
-    signal rowInRange : std_logic;
-    signal colInRange : std_logic;
+    signal rowInRange : std_logic := '0';
+    signal colInRange : std_logic := '0';
     signal count_up : std_logic := '0';
-    signal triangle_width : unsigned(h_nbit - 1 downto 0) := (others => '0');
-    signal test : std_logic := '0';
+    signal triangle_width : unsigned(v_nbit - 1 downto 0);
+    signal last_rowNum : std_logic_vector( v_nbit - 1 downto 0);
+    signal last_colNum : std_logic_vector( h_nbit - 1 downto 0);
+
 
 
   begin
   
-    process (rowNum, colNum)
+    process (colNum)
     begin
+            
+        triangle_width <= (unsigned(rowNum) - unsigned(rowOffset))/2;
+        
+        colInRange <= '0';
+        if ((unsigned(colNum) > (unsigned(colOffset) + to_unsigned(size, h_nbit)/2 - triangle_width )) and
+        (unsigned(colNum) < (unsigned(colOffset) + to_unsigned(size, h_nbit)/2 + triangle_width))) then
+            colInRange <= '1';
+        end if;
+        
         rowInRange <= '0';
         if ((unsigned(rowNum) >= unsigned(rowOffset)) and (unsigned(rowNum) < (unsigned(rowOffset) + size))) then
             rowInRange <= '1';
-        end if;
-
-        colInRange <= '0';
-        if ((unsigned(colNum) >= (unsigned(colOffset) + to_unsigned(size, h_nbit)/2 - triangle_width )) and
-        (unsigned(colNum) < (unsigned(colOffset) + to_unsigned(size, h_nbit)/2 + triangle_width))) then
-            colInRange <= '1';
         end if;
 
         -- draw shape over background
@@ -62,18 +67,6 @@ architecture bahavioral of triangle is
             colorGout <= colorGin;
             colorBout <= colorBin;
         end if;
-    end process;
-
-    process (rowNum)
-    begin
-        if count_up = '1' and rowInRange = '1' then
-            triangle_width <= triangle_width + 1;
-        end if;
-
-        if not rowInRange = '1' then
-            triangle_width <= (others => '0');
-        end if;
-        count_up <= not count_up;
     end process;
 
 end architecture;

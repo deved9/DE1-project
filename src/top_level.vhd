@@ -3,24 +3,25 @@ library ieee;
 
 entity top_level is
   port (
-    clk100mhz : in    std_logic;
-    sw        : in    std_logic_vector(15 downto 0);
-    btnc      : in    std_logic;
-    btnu      : in    std_logic;
-    btnl      : in    std_logic;
-    btnr      : in    std_logic;
-    btnd      : in    std_logic;
-    vga_r     : out   std_logic_vector(3 downto 0);
-    vga_g     : out   std_logic_vector(3 downto 0);
-    vga_b     : out   std_logic_vector(3 downto 0);
-    vga_hs    : out   std_logic;
-    vga_vs    : out   std_logic
+    CLK100MHZ : in    std_logic;
+    SW        : in    std_logic_vector(15 downto 0);
+    BTNC      : in    std_logic;
+    BTNU      : in    std_logic;
+    BTNL      : in    std_logic;
+    BTNR      : in    std_logic;
+    BTND      : in    std_logic;
+    VGA_R     : out   std_logic_vector(3 downto 0);
+    VGA_G     : out   std_logic_vector(3 downto 0);
+    VGA_B     : out   std_logic_vector(3 downto 0);
+    VGA_HS    : out   std_logic;
+    VGA_VS    : out   std_logic;
+    V_COUNT     : out   std_logic_vector(9 downto 0)
   );
 end entity top_level;
 
 architecture behavioral of top_level is
 
-  component clk_pll is
+  component CLK_PLL is
     port (
       clk100mhz_in : in    std_logic;
       clk40mhz     : out   std_logic
@@ -72,10 +73,35 @@ architecture behavioral of top_level is
       );
   end component;
 
+  component colours is
+    generic(
+           scr_width: integer := 800;
+           scr_height: integer := 600;
+           v_nbit: integer := 10;
+           h_nbit: integer := 11
+           );
+    Port ( SW_TOP_R             : in STD_LOGIC;
+           SW_TOP_G             : in STD_LOGIC;
+           SW_TOP_B             : in STD_LOGIC;
+           SW_BOT_R             : in STD_LOGIC;
+           SW_BOT_G             : in STD_LOGIC;
+           SW_BOT_B             : in STD_LOGIC;
+           SW_DIR               : in STD_LOGIC;
+           out_R                : out std_logic_vector (3 downto 0);
+           out_G                : out std_logic_vector (3 downto 0);
+           out_B                : out std_logic_vector (3 downto 0);
+           counter_horz         : in std_logic_vector (10 downto 0);
+           counter_vert         : in std_logic_vector (9 downto 0);
+           display_horz         : in STD_LOGIC;
+           display_vert         : in STD_LOGIC;
+           clk                  : in std_logic 
+           );
+  end component;
+  
   signal sig_clk40mhz   : std_logic;
 
   signal sig_h_count    : std_logic_vector(10 downto 0);
-  signal sig_v_count    : std_logic_vector(10 downto 0);
+  signal sig_v_count    : std_logic_vector(9 downto 0);
   
   signal sig_h_overflow : std_logic;
   signal sig_v_overflow : std_logic;
@@ -89,10 +115,14 @@ architecture behavioral of top_level is
   signal sig_colorR : std_logic_vector (3 downto 0);
   signal sig_colorG : std_logic_vector (3 downto 0);
   signal sig_colorB : std_logic_vector (3 downto 0);
+  
+  signal sig_colorR_background : std_logic_vector (3 downto 0);
+  signal sig_colorG_background : std_logic_vector (3 downto 0);
+  signal sig_colorB_background : std_logic_vector (3 downto 0);
 
 begin
 
-  pll : component clk_pll
+  pll_clk : component CLK_PLL
     port map (
       clk100mhz_in => clk100mhz,
       clk40mhz     => sig_clk40mhz
@@ -109,9 +139,9 @@ begin
     )
     port map (
       clk      => sig_clk40mhz,
-      rst      => btnc,
+      rst      => BTNC,
       count    => sig_h_count,
-      sync     => vga_hs,
+      sync     => VGA_HS,
       display  => sig_h_display,
       overflow => sig_h_overflow
     );
@@ -127,7 +157,7 @@ begin
     )
     port map (
       clk      => sig_h_overflow,
-      rst      => btnc,
+      rst      => BTNC,
       count    => sig_v_count,
       sync     => sig_v_sync,
       display  => sig_v_display,
@@ -151,16 +181,41 @@ begin
       move_l => BTNL,
       move_r => BTNR,
       shape_sel => SW(15 downto 14),
-      colorRbackground => b"0000",
-      colorGbackground => b"0000",
-      colorBbackground => b"0000",
+      colorRbackground => sig_colorR_background,
+      colorGbackground => sig_colorG_background,
+      colorBbackground => sig_colorB_background,
       colorRout => sig_colorR,
       colorGout => sig_colorG,
       colorBout => sig_colorB
     );
+    
+    colours_gen: component colours
+    generic map (
+        scr_width => 800,
+        scr_height => 600,
+        v_nbit => 10,
+        h_nbit => 11
+     )
+     port map (
+        SW_TOP_R => SW(0),         
+        SW_TOP_G => SW(1),
+        SW_TOP_B => SW(2),
+        SW_BOT_R => SW(3),
+        SW_BOT_G => SW(4),
+        SW_BOT_B => SW(5),
+        SW_DIR => SW(6),
+        out_R => sig_colorR_background,  
+        out_G => sig_colorG_background,          
+        out_B => sig_colorB_background,          
+        counter_horz => sig_h_count,   
+        counter_vert => sig_v_count,   
+        display_horz => sig_h_display,    
+        display_vert => sig_v_display,   
+        clk => sig_clk40mhz
+        );             
 
-    vga_vs <= sig_v_sync;
-
+    VGA_VS <= sig_v_sync;
+    V_COUNT <= sig_v_count;
     -- DO NOT output color when outside display area
     vga_r <= sig_colorR when (sig_v_display = '1' and sig_h_display = '1') else b"0000";
     vga_g <= sig_colorG when (sig_v_display = '1' and sig_h_display = '1') else b"0000";

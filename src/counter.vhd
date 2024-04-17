@@ -60,7 +60,7 @@ begin
             sig_display <= '0';
           end if;
           --! Generate SYNC pulse
-          if ((sig_count > sig_front_porch) and (sig_count < sig_back_porch)) then
+          if ((sig_count > sig_front_porch) and (sig_count <= sig_back_porch)) then
             sig_sync <= '0';
           else
             sig_sync <= '1';
