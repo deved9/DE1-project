@@ -14,8 +14,7 @@ entity top_level is
     VGA_G     : out   std_logic_vector(3 downto 0);
     VGA_B     : out   std_logic_vector(3 downto 0);
     VGA_HS    : out   std_logic;
-    VGA_VS    : out   std_logic;
-    V_COUNT     : out   std_logic_vector(9 downto 0)
+    VGA_VS    : out   std_logic
   );
 end entity top_level;
 
@@ -215,7 +214,7 @@ begin
         );             
 
     VGA_VS <= sig_v_sync;
-    V_COUNT <= sig_v_count;
+
     -- DO NOT output color when outside display area
     vga_r <= sig_colorR when (sig_v_display = '1' and sig_h_display = '1') else b"0000";
     vga_g <= sig_colorG when (sig_v_display = '1' and sig_h_display = '1') else b"0000";
