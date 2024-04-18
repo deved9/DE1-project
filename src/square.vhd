@@ -36,11 +36,13 @@ entity square is
   
     process (rowNum, colNum)
     begin
+        -- check if current row number is in range for shape
         rowInRange <= '0';
         if ((unsigned(rowNum) >= unsigned(rowOffset)) and (unsigned(rowNum) < (unsigned(rowOffset) + size))) then
             rowInRange <= '1';
         end if;
-
+       
+        -- check if current column number is in range for shape
         colInRange <= '0';
         if ((unsigned(colNum) > unsigned(colOffset)) and (unsigned(colNum) < (unsigned(colOffset) + size))) then
             colInRange <= '1';

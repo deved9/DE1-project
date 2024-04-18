@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use ieee.numeric_std.all;
 USE IEEE.math_real.ALL;
 
-
+-- wrapper for square and triangle components
 entity shapes is
     generic(
             scr_width: integer := 800;
@@ -78,6 +78,7 @@ entity shapes is
           );
       end component;
 
+      -- holds offset value for shape position
       signal v_offset : unsigned(v_nbit-1 downto 0) := (others => '0');
       signal h_offset : unsigned(h_nbit-1 downto 0) := (others => '0');
 
@@ -136,8 +137,10 @@ entity shapes is
             colorBout => colorBtr
         );
 
+    
     process (colNum)
     begin
+          -- switches color signal source to output
           case sig_shape_sel is
                 when "10" =>
                     colorRout <= colorRtr;
@@ -156,6 +159,7 @@ entity shapes is
 
     process (count)
     begin
+        -- if buttons are pressed, change shape offset values
         if rising_edge(count) then
             if (move_u = '1' and (to_integer(unsigned(v_offset)) > 1)) then
                 v_offset <= v_offset - 1;

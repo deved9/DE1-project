@@ -42,15 +42,17 @@ architecture bahavioral of triangle is
   
     process (colNum)
     begin
-            
+        -- calculate triangle width on current row
         triangle_width <= (unsigned(rowNum) - unsigned(rowOffset))/2;
         
+        -- check if current column number is in range for shape
         colInRange <= '0';
         if ((unsigned(colNum) > (unsigned(colOffset) + to_unsigned(size, h_nbit)/2 - triangle_width )) and
         (unsigned(colNum) < (unsigned(colOffset) + to_unsigned(size, h_nbit)/2 + triangle_width))) then
             colInRange <= '1';
         end if;
         
+        -- check if current row number is in range for shape
         rowInRange <= '0';
         if ((unsigned(rowNum) >= unsigned(rowOffset)) and (unsigned(rowNum) < (unsigned(rowOffset) + size))) then
             rowInRange <= '1';
