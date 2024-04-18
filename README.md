@@ -76,6 +76,32 @@ Díky pevně nastavené velikosti obrazovky 800x600 a znalosti počtu zobrazitel
 ![Schéma zapojení bloku colours](images/schematics/colours.jpg)
 *Schéma zapojení bloku colours*
 
+# Detail VHDL kódu
+## Colours segment
+'''
+counter_horz         : in std_logic_vector (10 downto 0);
+counter_vert         : in std_logic_vector (9 downto 0);
+'''
+Definice vstupů čítačů pro horizontální a vertikální řady
+
+'''
+constant coloursCount           : unsigned(3 downto 0) := "1111";		--Maximum barev
+constant vertSegmentCount       : unsigned(5 downto 0) := "100110";		--Počet vertikálních segmentů
+constant horzSegmentCount       : unsigned(5 downto 0) := "110010";		--Počet horizontálních segmentů
+'''
+Definice konstant
+
+'''
+out_R <= std_logic_vector(resize((unsigned(counter_vert) / vertSegmentCount),out_R'length));
+'''
+Signál z čítače je prvně převeden na unsigned, poté je vydělen počtem segmentů a pomocí resize je zkrácen na 4 bity. Výsledek je převeden na logický vektor.
+'''
+out_R <= std_logic_vector(resize(coloursCount - (unsigned(counter_vert) / vertSegmentCount),out_R'length));
+'''
+Operace je obdobná s předchozí pouze je výsledek dělení odečten od maxima barev pro inverzi směru gradientu
+
+
+
 ## Instrukce
 Ovládání probíhá pomocí pěti tlačítek a devíti přepínačů na desce FPGA. 
 - BTNC - Reset
