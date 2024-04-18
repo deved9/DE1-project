@@ -76,6 +76,23 @@ Díky pevně nastavené velikosti obrazovky 800x600 a znalosti počtu zobrazitel
 ![Schéma zapojení bloku colours](images/schematics/colours.jpeg)
 *Schéma zapojení bloku colours*
 
+## Instrukce
+Ovládání probíhá pomocí pěti tlačítek a devíti přepínačů na desce FPGA. 
+- BTNC - Reset
+- BTNU - Posun obrazce nahoru
+- BTND - Posun obrazce dolů
+- BTNR - Posun obrazce doprava
+- BTNL - Posun obrazce left
+- SW0 - Červená nahoře
+- SW1 - Zelená nahoře
+- SW2 - Modrá nahoře
+- SW3 - Červená dole
+- SW4 - Zelená dole
+- SW5 - Modrá dole
+- SW6 - Směr gradientu
+- SW14 - Zobrazení čtverce
+- SW15 - Zobrazení trojůhelníku
+
 ## Zdroje
 [1] http://tinyvga.com/vga-timing/800x600@60Hz
 
