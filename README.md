@@ -46,17 +46,23 @@ Pohyb tvarů zajišťují 4 tlačítka. Podle těchto vstupních signálů je po
 
 O samotnou tvorbu tvarů se starají bloky square a triangle, jež podle aktuální pozice řádku a sloupce matematicky odvodí, zda zobrazit zvolený tvar s předem nastavenou barvou nebo propustiti signál pozadí na výstup.
 
-## Generování pozadí
-Gradient na pozadí je vytvořen z poloh šesti fyzických přepínačů na desce FPGA. První tři přepínače volí RGB barvu nahoře obrazovky, druhé tři na spodu obrazovky, poslední snímač vybírá mezi vertikálním a horizontálním gradientem. Při generaci se tvoží každá barva zvlášť a složí se až vizuálně na monitoru.
-
-Pokud jsou přepínače jedné barvy nastaveny shodně, zobrazí se jednolitá barva. Pokud chceme gradient, musí být přepínače nastaveny rozdílně, konkrétní polohy rozhodnou o překlopení gradientu.
-Díky pevně nastavené velikosti obrazovky 800x600 a znalosti počtu zobrazitelných barev můžeme rozdělit obrazovku na 16 segmentů. Vertikálně budou segmenty 38.5 pixelů vysoké, což zaokrouhlíme na 39, a horizontálně 50 pixelů široké. Při generaci gradientů, využijeme  velikost segmentů  k dělení aktuální hodnoty signálu příslušného čítače udávajícího polohu v řádku nebo sloupci. Dělení vrací 4-bitovou hodnotu udávající hodnotu jedné barvy pro příslušný pixel, dle nastavených přepínačů. 
 
 ![Schéma zapojení bloku square](images/schematics/square.png)
 *Schéma zapojení bloku square*
 
 ![Schéma zapojení bloku triangle](images/schematics/triangle.png)
 *Schéma zapojení bloku triangle*
+
+
+## Generování pozadí
+Gradient na pozadí je vytvořen z poloh šesti fyzických přepínačů na desce FPGA. První tři přepínače volí RGB barvu nahoře obrazovky, druhé tři na spodu obrazovky, poslední snímač vybírá mezi vertikálním a horizontálním gradientem. Při generaci se tvoží každá barva zvlášť a složí se až vizuálně na monitoru.
+
+Pokud jsou přepínače jedné barvy nastaveny shodně, zobrazí se jednolitá barva. Pokud chceme gradient, musí být přepínače nastaveny rozdílně, konkrétní polohy rozhodnou o překlopení gradientu.
+Díky pevně nastavené velikosti obrazovky 800x600 a znalosti počtu zobrazitelných barev můžeme rozdělit obrazovku na 16 segmentů. Vertikálně budou segmenty 38.5 pixelů vysoké, což zaokrouhlíme na 39, a horizontálně 50 pixelů široké. Při generaci gradientů, využijeme  velikost segmentů  k dělení aktuální hodnoty signálu příslušného čítače udávajícího polohu v řádku nebo sloupci. Dělení vrací 4-bitovou hodnotu udávající hodnotu jedné barvy pro příslušný pixel, dle nastavených přepínačů. 
+
+![Schéma zapojení bloku colours](images/schematics/colours.png)
+*Schéma zapojení bloku colours*
+
 ## Zdroje
 http://tinyvga.com/vga-timing/800x600@60Hz
 
