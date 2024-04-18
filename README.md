@@ -73,7 +73,7 @@ Gradient na pozadí je vytvořen z poloh šesti fyzických přepínačů na desc
 Pokud jsou přepínače jedné barvy nastaveny shodně, zobrazí se jednolitá barva. Pokud chceme gradient, musí být přepínače nastaveny rozdílně, konkrétní polohy rozhodnou o překlopení gradientu.
 Díky pevně nastavené velikosti obrazovky 800x600 a znalosti počtu zobrazitelných barev můžeme rozdělit obrazovku na 16 segmentů. Vertikálně budou segmenty 38.5 pixelů vysoké, což zaokrouhlíme na 39, a horizontálně 50 pixelů široké. Při generaci gradientů, využijeme  velikost segmentů  k dělení aktuální hodnoty signálu příslušného čítače udávajícího polohu v řádku nebo sloupci. Dělení vrací 4-bitovou hodnotu udávající hodnotu jedné barvy pro příslušný pixel, dle nastavených přepínačů. 
 
-![Schéma zapojení bloku colours](images/schematics/colours.jpeg)
+![Schéma zapojení bloku colours](images/schematics/colours.jpg)
 *Schéma zapojení bloku colours*
 
 ## Instrukce
@@ -91,7 +91,7 @@ Ovládání probíhá pomocí pěti tlačítek a devíti přepínačů na desce 
 - SW5 - Modrá dole
 - SW6 - Směr gradientu
 - SW14 - Zobrazení čtverce
-- SW15 - Zobrazení trojůhelníku
+- SW15 - Zobrazení trojúhelníku
 
 ## Zdroje
 [1] http://tinyvga.com/vga-timing/800x600@60Hz
