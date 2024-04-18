@@ -31,6 +31,19 @@ Pro generaci hodinového signálu je použit vestavěný fázový závěs desky 
 ## Synchronizace
 Pro úspěšné zobrazení obrazu je třeba generovat impulsy vertikální a horizontální synchronizace. Podle kmitočtu těchto pulsů pozná monitor námi požadované rozlišení a snímkovací kmitočet. Tyto impulsy jsou výstupy klopných obvodů jež se setují a resetují s určitou kombinací na verikálním a horizontálním čítači. Horizontání čítač čítá impulsy hodinového signálu a jeho hodnota odpovídá zobrazovanému sloupci, popř. nezobrazovyným částem front porch, back porch a synchronizační puls. Vertikální čítač určuje pozici řádku, popř stejných nezobrazovaných částí jako horizontální čítač.
 
+## Čítač
+Blok ,,counter.vhd" je univerzálně navržen pro čítání horizontálních či vertikálních pixelů. Na vstup přivádíme hodinový pulz a resetovací tlačítko. Výstupní signály jsou pak:
+-	,,sync“  = synchronizační pulz obrazovky (active LOW), 
+-	,,display“ = pulz definující, zda se čítač nachází ve viditelné části obrazovky (active HIGH),
+-	,,overflow“ = je v HIGH úrovni, pokud čítač přetekl.
+
+Interní konstanty čítače josu pak řešeny generiky, čímž se rozumí standardizované numerické hodnoty spouštění uvedené v [1]. 
+
+Proces čítače reaguje na nástupnou hranu přiváděného hodinového pulzu, čímž pro horizontální čítač je výstup z PLL. Vertikální čítač spouštíme výstupním impulzem indikující přetečení horizontálního čítače. 
+
+Oba čítače jsou napojeny na stejný reset.
+
+
 ![Schéma zapojení čítače](images/schematics/counter.png)
 *Schéma zapojení čítače*
 
@@ -60,16 +73,16 @@ Gradient na pozadí je vytvořen z poloh šesti fyzických přepínačů na desc
 Pokud jsou přepínače jedné barvy nastaveny shodně, zobrazí se jednolitá barva. Pokud chceme gradient, musí být přepínače nastaveny rozdílně, konkrétní polohy rozhodnou o překlopení gradientu.
 Díky pevně nastavené velikosti obrazovky 800x600 a znalosti počtu zobrazitelných barev můžeme rozdělit obrazovku na 16 segmentů. Vertikálně budou segmenty 38.5 pixelů vysoké, což zaokrouhlíme na 39, a horizontálně 50 pixelů široké. Při generaci gradientů, využijeme  velikost segmentů  k dělení aktuální hodnoty signálu příslušného čítače udávajícího polohu v řádku nebo sloupci. Dělení vrací 4-bitovou hodnotu udávající hodnotu jedné barvy pro příslušný pixel, dle nastavených přepínačů. 
 
-![Schéma zapojení bloku colours](images/schematics/colours.png)
+![Schéma zapojení bloku colours](images/schematics/colours.jpeg)
 *Schéma zapojení bloku colours*
 
 ## Zdroje
-http://tinyvga.com/vga-timing/800x600@60Hz
+[1] http://tinyvga.com/vga-timing/800x600@60Hz
 
-https://electronics.stackexchange.com/questions/295130/vga-timing-sync-porch-positions-fpga
+[2] https://electronics.stackexchange.com/questions/295130/vga-timing-sync-porch-positions-fpga
 
-https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax
+[3] https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax
 
-https://digilent.com/reference/_media/programmable-logic/nexys-a7/nexys-a7-d3-sch.pdf
+[4] https://digilent.com/reference/_media/programmable-logic/nexys-a7/nexys-a7-d3-sch.pdf
 
-https://digilent.com/reference/programmable-logic/nexys-a7/reference-manual
+[5] https://digilent.com/reference/programmable-logic/nexys-a7/reference-manual
