@@ -68,7 +68,7 @@ O samotnou tvorbu tvarů se starají bloky square a triangle, jež podle aktuál
 
 
 ## Generování pozadí
-Gradient na pozadí je vytvořen z poloh šesti fyzických přepínačů na desce FPGA. První tři přepínače volí RGB barvu nahoře obrazovky, druhé tři na spodu obrazovky, poslední snímač vybírá mezi vertikálním a horizontálním gradientem. Při generaci se tvoží každá barva zvlášť a složí se až vizuálně na monitoru.
+Gradient na pozadí je vytvořen z poloh šesti fyzických přepínačů na desce FPGA. První tři přepínače volí RGB barvu nahoře obrazovky, druhé tři naspodu obrazovky, poslední spínač vybírá mezi vertikálním a horizontálním gradientem. Při generaci se tvoží každá barva zvlášť a složí se až vizuálně na monitoru.
 
 Pokud jsou přepínače jedné barvy nastaveny shodně, zobrazí se jednolitá barva. Pokud chceme gradient, musí být přepínače nastaveny rozdílně, konkrétní polohy rozhodnou o překlopení gradientu.
 Díky pevně nastavené velikosti obrazovky 800x600 a znalosti počtu zobrazitelných barev můžeme rozdělit obrazovku na 16 segmentů. Vertikálně budou segmenty 38.5 pixelů vysoké, což zaokrouhlíme na 39, a horizontálně 50 pixelů široké. Při generaci gradientů, využijeme  velikost segmentů  k dělení aktuální hodnoty signálu příslušného čítače udávajícího polohu v řádku nebo sloupci. Dělení vrací 4-bitovou hodnotu udávající hodnotu jedné barvy pro příslušný pixel, dle nastavených přepínačů. 
