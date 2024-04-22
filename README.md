@@ -119,6 +119,8 @@ Ovládání probíhá pomocí pěti tlačítek a devíti přepínačů na desce 
 - SW14 - Zobrazení čtverce
 - SW15 - Zobrazení trojúhelníku
 
+[![nice](https://img.youtube.com/vi/8O0zno7WMLM/0.jpg)](https://www.youtube.com/watch?v=8O0zno7WMLM)
+
 ## Zdroje
 [1] http://tinyvga.com/vga-timing/800x600@60Hz
 
