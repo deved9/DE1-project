@@ -77,6 +77,32 @@ Díky pevně nastavené velikosti obrazovky 800x600 a znalosti počtu zobrazitel
 *Schéma zapojení bloku colours*
 
 # Detail VHDL kódu
+
+## Counter segment
+Příklad definice interních genericů pro horizontální čítač
+```
+generic (
+    nbit         : integer := 11;       -- Počet bitů čítače
+    length       : integer := 1056;     -- Kapacita čítače  
+    front_porch  : integer := 40;       -- Délka front porch v px
+    sync_pulse   : integer := 128;      -- Délka synchronizačního pulzu v px
+    back_porch   : integer := 88;       -- Délka back porch v px
+    visible_area : integer := 800       -- Délka obrazovky v px
+  );
+```
+
+Příklad definice portů horizontálního čítače
+```
+port (
+    clk      : in    std_logic;                                 -- Taktování
+    rst      : in    std_logic;                                 -- Reset
+    count    : out   std_logic_vector(nbit - 1 downto 0);       -- Aktuální numerický stav čítače
+    sync     : out   std_logic;                                 -- Synchronizační pulz (Active Low)
+    display  : out   std_logic;                                 -- Ukazuje, zda je čítač ve viditelné části monitoru (Active High)
+    overflow : out   std_logic                                  -- Aktivní, pokud došlo k přetečení čítače
+  );
+  ```
+
 ## Colours segment
 ```
 counter_horz         : in std_logic_vector (10 downto 0);
