@@ -117,7 +117,7 @@ Velikost a barva čtverce mužou být nastaveny pomocí generic.
 ```
 (unsigned(rowNum) >= unsigned(rowOffset)) and (unsigned(rowNum) < (unsigned(rowOffset) + size))
 ```
-Podmínka pro stanivení, zda číslo řádku zasahuje do tvaru čtverce.
+Podmínka pro stanovení, zda číslo řádku zasahuje do tvaru čtverce.
 
 ```
 (unsigned(colNum) > unsigned(colOffset)) and (unsigned(colNum) < (unsigned(colOffset) + size))
