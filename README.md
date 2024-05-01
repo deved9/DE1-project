@@ -98,9 +98,61 @@ Signál z čítače je prvně převeden na unsigned, poté je vydělen počtem s
 ```
 out_R <= std_logic_vector(resize(coloursCount - (unsigned(counter_vert) / vertSegmentCount),out_R'length));
 ```
-Operace je obdobná s předchozí pouze je výsledek dělení odečten od maxima barev pro inverzi směru gradientu
+Operace je obdobná s předchozí pouze je výsledek dělení odečten od maxima barev pro inverzi směru gradientu.
+
+## Square segment
+
+```
+v_nbit: integer := 10;
+h_nbit: integer := 11;
+size: integer := 250;
+-- default color is white
+R: integer := 15;
+G: integer := 15;
+B: integer := 15
+```
+Velikost a barva čtverce mužou být nastaveny pomocí generic.
 
 
+```
+(unsigned(rowNum) >= unsigned(rowOffset)) and (unsigned(rowNum) < (unsigned(rowOffset) + size))
+```
+Podmínka pro stanivení, zda číslo řádku zasahuje do tvaru čtverce.
+
+```
+(unsigned(colNum) > unsigned(colOffset)) and (unsigned(colNum) < (unsigned(colOffset) + size))
+```
+Podmínka pro stanovení, zda číslo sloupce zasahuje do tvaru čtverce.
+
+```
+if (rowInRange = '1' and colInRange = '1') then
+    colorRout <= std_logic_vector(to_unsigned(R, colorRout'length));
+    colorGout <= std_logic_vector(to_unsigned(G, colorGout'length));
+    colorBout <= std_logic_vector(to_unsigned(B, colorBout'length));
+else
+    -- pass background through
+    colorRout <= colorRin;
+    colorGout <= colorGin;
+    colorBout <= colorBin;
+end if;
+```
+Pokud jsou obě podmínky vyhodnoceny jako pravdivé je na výstupní porty barev přiřazena barva čtverce, v opačném případě projde barva pozadí nezměněna. 
+
+## Triangle segment
+Jako u segmentu Square, lze i zde nastavit barvu a velikost pomocí generic.
+
+```
+triangle_width <= (unsigned(rowNum) - unsigned(rowOffset))/2;
+```
+Jedná se o rovnoramenný trojuhelník. Z pozice řádku a posunu tvaru ve vertikální ose je spočítána šířka trojúhelníku na aktuálním řádku.
+
+```
+(unsigned(colNum) > (unsigned(colOffset) + to_unsigned(size, h_nbit)/2 - triangle_width )) and
+(unsigned(colNum) < (unsigned(colOffset) + to_unsigned(size, h_nbit)/2 + triangle_width))
+```
+Šířka trojuhelníku je poté využita v podmínce pro aktuální číslo sloupce.
+
+Podmínka pro řádek a následné přiřazení barev na výstupy je stejná jako u segmentu Square
 
 ## Instrukce
 Ovládání probíhá pomocí pěti tlačítek a devíti přepínačů na desce FPGA. 
