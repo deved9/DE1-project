@@ -1,98 +1,103 @@
 # VGA Image Rendering and Manipulation
 
-## Členové týmu
-- David Maňásek (generace tvarů)
-- Jan Kusák (vertikální/horizontální synchronizace)
-- Lukáš Mackových (generace barevných gradientů)
+## Team membeers
+- David Maňásek (Shape generation)
+- Jan Kusák (vertical/horizontal generation)
+- Lukáš Mackových (color gradient generation)
 
-## Teoretický popis funkce
-### Hodinový signál
-Pro zjednodušení další práce je využito hodinového signálu o kmitočtu 40MHz. 
+## Theoretical description
+### Clock signal
+For simplification of future work a clock signal of 40 MHz is used.
 
-### Synchronizace
-Standard SVGA jež byl zvolen pro tento projekt s rozlišením 800x600px a obnovovacím kmitočtem 60Hz popisuje přesné časování synchronizačních pulsů. Doba jednoho řádku je 26.4us, z toho viditelná část obrazu je prvních 20us, dále je 1us front porch, 3.2us dlouhý horizontální sync puls a 2.2us dlouhý back porch. Doba jednoho snímku je 16.579ms, z toho je 15.84ms viditelná část, 26.4us front forch, 105.6us vetrikální synchronizační impuls a 607.2us dlouhý back porch. Front a back porch jsou zde jen pro zpětnou kompatibilitu s CRT monitory kdy v tomto čase elektronový paprsek přebíhal zpět na začátek řádku.
+### Synchronization
+Standard SVGA chosen for this project with a resolution of 800x600px and a refresh rate of 60Hz describes precise timing of synchronization pulses. The duration of one line is 26.4us, with the visible part of the image being the first 20 us, followed by a 1us front porch, a 3.2 us long horizontal sync pulse, and a 2.2 us long back porch. The duration of one frame is 16.579 ms, with 15.84 ms being the visible part, 26.4us front porch, 105.6 us vertical synchronization pulse, and 607.2 us long back porch. Front and back porches are included here for backward compatibility with CRT monitors, during which the electron beam was transitioning back to the beginning of the line.
 
-![Diagram časování signálů](images/readme/VGA_timing_diagram.jpg)
+![Signal timing diagram](images/readme/VGA_timing_diagram.jpg)
 
-### Přenos obrazu
-VGA využívá pro vyjádření barev analogové úrovně napětí na linkách R,G a B, tyto linky jsou ukončeny zátěží 75Ω v monitoru. Tohle umožňuje realizaci jednoduchého D/A převodníku pomocí rezistorů jak je znázorněno na schematu níže.  
+### Picture transfer
+VGA utilizes analog voltage levels on the R, G, and B lines to express colors, with these lines terminated by a 75 Ω load in the monitor. This enables the implementation of a simple D/A converter using resistors, as illustrated in the schematic below.
 
-![Schema zapojení VGA konektoru na FPGA desce](images/readme/zapojení_VGA_nexys.png)
+ 
 
-# Popis hardwerového zapojení
-## Schéma zapojení 
-Vrstva top_level je zapojena dle přiloženého schématu níže. Skládá se z bloků PLL, elegatně řešící generaci 40MHz hodinového pulzu, na který je zapojen čítač horizontální osy monitoru. Stavy přetečení horizontálního čítače pak sleduje a vertikální čítač. Oba čítače lze snadno resetovat BTNC tlačítkem, jež je integrováno do desky. 
-![Schéma zapojení vrstvy top_level](images/schematics/top_level.png)
-*Schéma zapojení vrstvy top_level*
+![Schematic of VGA wiring on the FPGA board](images/readme/zapojení_VGA_nexys.png)
 
-## Hodinový signál
-Pro generaci hodinového signálu je použit vestavěný fázový závěs desky Nexis A7 50T a bloku IP pro jeho konfiguraci.
+# Hardware description
+## Schematics
 
-## Synchronizace
-Pro úspěšné zobrazení obrazu je třeba generovat impulsy vertikální a horizontální synchronizace. Podle kmitočtu těchto pulsů pozná monitor námi požadované rozlišení a snímkovací kmitočet. Tyto impulsy jsou výstupy klopných obvodů jež se setují a resetují s určitou kombinací na verikálním a horizontálním čítači. Horizontání čítač čítá impulsy hodinového signálu a jeho hodnota odpovídá zobrazovanému sloupci, popř. nezobrazovyným částem front porch, back porch a synchronizační puls. Vertikální čítač určuje pozici řádku, popř stejných nezobrazovaných částí jako horizontální čítač.
+The top_level layer is connected according to the schematic provided below. It consists of PLL blocks, elegantly addressing the generation of a 40MHz clock pulse, which is connected to the horizontal axis counter of the monitor. The overflow states of the horizontal counter are then monitored by the vertical counter. Both counters can be easily reset by the BTNC button integrated into the board.
 
-## Čítač
-Blok ,,counter.vhd" je univerzálně navržen pro čítání horizontálních či vertikálních pixelů. Na vstup přivádíme hodinový pulz a resetovací tlačítko. Výstupní signály jsou pak:
--	,,sync“  = synchronizační pulz obrazovky (active LOW), 
--	,,display“ = pulz definující, zda se čítač nachází ve viditelné části obrazovky (active HIGH),
--	,,overflow“ = je v HIGH úrovni, pokud čítač přetekl.
+![Schematic of layer top_level](images/schematics/top_level.png)
+*Schematic of top_level layer*
 
-Interní konstanty čítače josu pak řešeny generiky, čímž se rozumí standardizované numerické hodnoty spouštění uvedené v [1]. 
+## Clock signal
+For clock signal generation, the built-in phase-locked loop (PLL) of the Nexis A7 50T board is utilized along with an IP block for its configuration.
 
-Proces čítače reaguje na nástupnou hranu přiváděného hodinového pulzu, čímž pro horizontální čítač je výstup z PLL. Vertikální čítač spouštíme výstupním impulzem indikující přetečení horizontálního čítače. 
+## Synchronization
+For successful image display, it is necessary to generate vertical and horizontal synchronization pulses. Based on the frequency of these pulses, the monitor recognizes our desired resolution and refresh rate. These pulses are outputs of flip-flops that are set and reset with specific combinations on the vertical and horizontal counters. The horizontal counter counts clock signal pulses, and its value corresponds to the displayed column, or alternatively to the non-displayed parts such as front porch, back porch, and synchronization pulse. The vertical counter determines the row position, or similarly the non-displayed parts like the horizontal counter.
 
-Oba čítače jsou napojeny na stejný reset.
+## Counter
+The "counter.vhd" block is universally designed for counting horizontal or vertical pixels. Clock pulse and reset button are input to it. The output signals are then:
 
+- "sync" = screen synchronization pulse (active LOW),
+- "display" = pulse defining whether the counter is in the visible part of the screen (active HIGH),
+- "overflow" = is in a HIGH state if the counter has overflowed.
 
-![Schéma zapojení čítače](images/schematics/counter.png)
-*Schéma zapojení čítače*
+Internal constants of the counter are then addressed by generics, which means standardized numerical values specified in [1].
 
-## Generace obrazu
-Ze schematu desky mužeme vyvodit že každá barva má bitovou hloubku 4 bity, jednoduchým výpočtem dostaneme $2^4 = 16$ odstínů jedné barvy, celkový počet je 4096 barev. Výsledné napětí je výsledkem odporové sčítačky napětí kde odpory ve větvích udávájí váhu jednotlivého bitu.
+The counter process responds to the rising edge of the incoming clock pulse, which for the horizontal counter is the output from the PLL. The vertical counter is triggered by an output pulse indicating the overflow of the horizontal counter.
 
-Generování 4bitových vektorů pro jednotlivé barvy jsou výsledkem kombinační a sekvenční logiky. Jako vstup této logiky jsou výstupy čítačů vertikální a horizontání synchronizace společně s hodinovými signály pro tyto čítače. Aktuálně zobrazovaný obraz lze měnit pomocí kombinace přepínačů na desce.
-
-## Zobrazení tvarů
-Pro zobrazení zvoleného tvaru na pozadí je signál barevného pozadí potlačen a místo něj vložen signál odpovídající barvě tvaru. Pokud se aktuální pozice nachází mimo tvar, je pozadí předáno dále skrze bloky shapes a square nebo triangle.
-
-Pohyb tvarů zajišťují 4 tlačítka. Podle těchto vstupních signálů je poté každý snímek inkrementována nebo dekrementována příslušná hodnota vertikálního nebo horizontálního posunu (offsetu).
-
-O samotnou tvorbu tvarů se starají bloky square a triangle, jež podle aktuální pozice řádku a sloupce matematicky odvodí, zda zobrazit zvolený tvar s předem nastavenou barvou nebo propustiti signál pozadí na výstup.
+Both counters are connected to the same reset.
 
 
-![Schéma zapojení bloku square](images/schematics/square.png)
-*Schéma zapojení bloku square*
+![Counter schematic](images/schematics/counter.png)
+*Counter schematic*
 
-![Schéma zapojení bloku triangle](images/schematics/triangle.png)
-*Schéma zapojení bloku triangle*
+## Picture generation
+From the board schematic, we can deduce that each color has a bit depth of 4 bits. By a simple calculation, we get $2^4 = 16$ shades of one color, resulting in a total of 4096 colors. The resulting voltage is the outcome of a resistive voltage adder, where the resistors in the branches determine the weight of each bit.
+
+Generating 4-bit vectors for individual colors is the result of combinational and sequential logic. The inputs to this logic are the outputs of the vertical and horizontal synchronization counters together with clock signals for these counters. The currently displayed image can be changed using a combination of switches on the board.
+
+## Shape Display
+To display the selected shape on the background, the signal of the background color is suppressed, and instead, a signal corresponding to the shape color is inserted. If the current position is outside the shape, the background is passed through the shapes and square or triangle blocks.
+
+The movement of shapes is controlled by 4 buttons. Based on these input signals, each frame is then incremented or decremented by the corresponding vertical or horizontal offset value.
+
+The creation of shapes is handled by square and triangle blocks, which mathematically derive whether to display the selected shape with a preset color or pass the background signal to the output based on the current row and column position.
 
 
-## Generování pozadí
-Gradient na pozadí je vytvořen z poloh šesti fyzických přepínačů na desce FPGA. První tři přepínače volí RGB barvu nahoře obrazovky, druhé tři naspodu obrazovky, poslední spínač vybírá mezi vertikálním a horizontálním gradientem. Při generaci se tvoží každá barva zvlášť a složí se až vizuálně na monitoru.
+![Schematic of square layer](images/schematics/square.png)
+*Schematic of square layer*
 
-Pokud jsou přepínače jedné barvy nastaveny shodně, zobrazí se jednolitá barva. Pokud chceme gradient, musí být přepínače nastaveny rozdílně, konkrétní polohy rozhodnou o překlopení gradientu.
-Díky pevně nastavené velikosti obrazovky 800x600 a znalosti počtu zobrazitelných barev můžeme rozdělit obrazovku na 16 segmentů. Vertikálně budou segmenty 38.5 pixelů vysoké, což zaokrouhlíme na 39, a horizontálně 50 pixelů široké. Při generaci gradientů, využijeme  velikost segmentů  k dělení aktuální hodnoty signálu příslušného čítače udávajícího polohu v řádku nebo sloupci. Dělení vrací 4-bitovou hodnotu udávající hodnotu jedné barvy pro příslušný pixel, dle nastavených přepínačů. 
+![Schematic of triangle layer](images/schematics/triangle.png)
+*Schematic of triangle layer*
 
-![Schéma zapojení bloku colours](images/schematics/colours.jpg)
-*Schéma zapojení bloku colours*
 
-# Detail VHDL kódu
+## Background generation
+The background gradient is created from the positions of six physical switches on the FPGA board. The first three switches select the RGB color at the top of the screen, the second three at the bottom of the screen, and the last switch selects between vertical and horizontal gradient. Each color is generated separately and visually composed on the monitor.
+
+If the switches of one color are set identically, a solid color is displayed. To create a gradient, the switches must be set differently, and specific positions determine the direction of the gradient.
+Due to the fixed screen size of 800x600 and knowledge of the number of displayable colors, we can divide the screen into 16 segments. Vertically, the segments will be 38.5 pixels high, rounded to 39, and horizontally 50 pixels wide. When generating gradients, we use the segment size to divide the current value of the signal of the corresponding counter indicating the position in the row or column. Division returns a 4-bit value indicating the color value for the respective pixel, according to the settings of the switches.
+
+![Schmatic of coulours layer](images/schematics/colours.jpg)
+*Schmatic of coulours layer*
+
+# Detail of VHDL codee
 
 ## Counter segment
-Příklad definice interních genericů pro horizontální čítač
-```
+Example of defining internal generics for the horizontal counter:
+``` .vhdl
 generic (
-    nbit         : integer := 11;       -- Počet bitů čítače
-    length       : integer := 1056;     -- Kapacita čítače  
-    front_porch  : integer := 40;       -- Délka front porch v px
-    sync_pulse   : integer := 128;      -- Délka synchronizačního pulzu v px
-    back_porch   : integer := 88;       -- Délka back porch v px
-    visible_area : integer := 800       -- Délka obrazovky v px
+    nbit         : integer := 11;       -- Width of the counter
+    length       : integer := 1056;     -- Capacity of the counter  
+    front_porch  : integer := 40;       -- Lenght of front porch in px
+    sync_pulse   : integer := 128;      -- Lenght of synchronization pulse in px
+    back_porch   : integer := 88;       -- Lenght of back porch in px
+    visible_area : integer := 800       -- Lenght of screen in px
   );
 ```
 
-Příklad definice portů horizontálního čítače
-```
+Example of defining ports for the horizontal counter:
+``` .vhdl
 port (
     clk      : in    std_logic;                                 -- Taktování
     rst      : in    std_logic;                                 -- Reset
@@ -104,31 +109,31 @@ port (
   ```
 
 ## Colours segment
-```
+``` .vhdl
 counter_horz         : in std_logic_vector (10 downto 0);
 counter_vert         : in std_logic_vector (9 downto 0);
 ```
 Definice vstupů čítačů pro horizontální a vertikální řady
 
-```
+``` .vhdl
 constant coloursCount           : unsigned(3 downto 0) := "1111";		--Maximum barev
 constant vertSegmentCount       : unsigned(5 downto 0) := "100110";		--Počet vertikálních segmentů
 constant horzSegmentCount       : unsigned(5 downto 0) := "110010";		--Počet horizontálních segmentů
 ```
 Definice konstant
 
-```
+``` .vhdl
 out_R <= std_logic_vector(resize((unsigned(counter_vert) / vertSegmentCount),out_R'length));
-```
+``` 
 Signál z čítače je prvně převeden na unsigned, poté je vydělen počtem segmentů a pomocí resize je zkrácen na 4 bity. Výsledek je převeden na logický vektor.
-```
+``` .vhdl
 out_R <= std_logic_vector(resize(coloursCount - (unsigned(counter_vert) / vertSegmentCount),out_R'length));
-```
+``` 
 Operace je obdobná s předchozí pouze je výsledek dělení odečten od maxima barev pro inverzi směru gradientu.
 
 ## Square segment
 
-```
+``` .vhdl
 v_nbit: integer := 10;
 h_nbit: integer := 11;
 size: integer := 250;
@@ -140,17 +145,17 @@ B: integer := 15
 Velikost a barva čtverce mužou být nastaveny pomocí generic.
 
 
-```
+``` .vhdl
 (unsigned(rowNum) >= unsigned(rowOffset)) and (unsigned(rowNum) < (unsigned(rowOffset) + size))
 ```
 Podmínka pro stanovení, zda číslo řádku zasahuje do tvaru čtverce.
 
-```
+``` .vhdl
 (unsigned(colNum) > unsigned(colOffset)) and (unsigned(colNum) < (unsigned(colOffset) + size))
 ```
 Podmínka pro stanovení, zda číslo sloupce zasahuje do tvaru čtverce.
 
-```
+``` .vhdl
 if (rowInRange = '1' and colInRange = '1') then
     colorRout <= std_logic_vector(to_unsigned(R, colorRout'length));
     colorGout <= std_logic_vector(to_unsigned(G, colorGout'length));
@@ -161,18 +166,18 @@ else
     colorGout <= colorGin;
     colorBout <= colorBin;
 end if;
-```
+``` 
 Pokud jsou obě podmínky vyhodnoceny jako pravdivé je na výstupní porty barev přiřazena barva čtverce, v opačném případě projde barva pozadí nezměněna. 
 
 ## Triangle segment
 Jako u segmentu Square, lze i zde nastavit barvu a velikost pomocí generic.
 
-```
+``` .vhdl
 triangle_width <= (unsigned(rowNum) - unsigned(rowOffset))/2;
 ```
 Jedná se o rovnoramenný trojuhelník. Z pozice řádku a posunu tvaru ve vertikální ose je spočítána šířka trojúhelníku na aktuálním řádku.
 
-```
+``` .vhdl
 (unsigned(colNum) > (unsigned(colOffset) + to_unsigned(size, h_nbit)/2 - triangle_width )) and
 (unsigned(colNum) < (unsigned(colOffset) + to_unsigned(size, h_nbit)/2 + triangle_width))
 ```
