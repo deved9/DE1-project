@@ -99,12 +99,12 @@ generic (
 Example of defining ports for the horizontal counter:
 ``` .vhdl
 port (
-    clk      : in    std_logic;                                 -- Taktování
+    clk      : in    std_logic;                                 -- Clock
     rst      : in    std_logic;                                 -- Reset
-    count    : out   std_logic_vector(nbit - 1 downto 0);       -- Aktuální numerický stav čítače
-    sync     : out   std_logic;                                 -- Synchronizační pulz (Active Low)
-    display  : out   std_logic;                                 -- Ukazuje, zda je čítač ve viditelné části monitoru (Active High)
-    overflow : out   std_logic                                  -- Aktivní, pokud došlo k přetečení čítače
+    count    : out   std_logic_vector(nbit - 1 downto 0);       -- Current numeric state
+    sync     : out   std_logic;                                 -- Synchronization pulse (active low)
+    display  : out   std_logic;                                 -- Is in visible part of the screen? (Active High)
+    overflow : out   std_logic                                  -- Active - counter has overflown
   );
   ```
 
@@ -113,26 +113,27 @@ port (
 counter_horz         : in std_logic_vector (10 downto 0);
 counter_vert         : in std_logic_vector (9 downto 0);
 ```
-Definice vstupů čítačů pro horizontální a vertikální řady
+Definition of counter input for horizontal and vertical rows
 
 ``` .vhdl
 constant coloursCount           : unsigned(3 downto 0) := "1111";		--Maximum barev
 constant vertSegmentCount       : unsigned(5 downto 0) := "100110";		--Počet vertikálních segmentů
 constant horzSegmentCount       : unsigned(5 downto 0) := "110010";		--Počet horizontálních segmentů
 ```
-Definice konstant
+Definition of constants
 
 ``` .vhdl
 out_R <= std_logic_vector(resize((unsigned(counter_vert) / vertSegmentCount),out_R'length));
 ``` 
-Signál z čítače je prvně převeden na unsigned, poté je vydělen počtem segmentů a pomocí resize je zkrácen na 4 bity. Výsledek je převeden na logický vektor.
+
+The signal from the counter is first converted to unsigned, then divided by the number of segments, and using resize, it is shortened to 4 bits. The result is converted to a logical vector.
+
 ``` .vhdl
 out_R <= std_logic_vector(resize(coloursCount - (unsigned(counter_vert) / vertSegmentCount),out_R'length));
 ``` 
-Operace je obdobná s předchozí pouze je výsledek dělení odečten od maxima barev pro inverzi směru gradientu.
+The operation is similar to the previous one, except that the result of the division is subtracted from the maximum number of colors to invert the gradient direction.
 
 ## Square segment
-
 ``` .vhdl
 v_nbit: integer := 10;
 h_nbit: integer := 11;
@@ -142,18 +143,16 @@ R: integer := 15;
 G: integer := 15;
 B: integer := 15
 ```
-Velikost a barva čtverce mužou být nastaveny pomocí generic.
-
+Size and color of the square can be set using generics.
 
 ``` .vhdl
 (unsigned(rowNum) >= unsigned(rowOffset)) and (unsigned(rowNum) < (unsigned(rowOffset) + size))
 ```
-Podmínka pro stanovení, zda číslo řádku zasahuje do tvaru čtverce.
-
+The condition to determine whether the row number falls within a square shape.
 ``` .vhdl
 (unsigned(colNum) > unsigned(colOffset)) and (unsigned(colNum) < (unsigned(colOffset) + size))
 ```
-Podmínka pro stanovení, zda číslo sloupce zasahuje do tvaru čtverce.
+The condition to determine whether the column number falls within a square shape.
 
 ``` .vhdl
 if (rowInRange = '1' and colInRange = '1') then
@@ -167,10 +166,10 @@ else
     colorBout <= colorBin;
 end if;
 ``` 
-Pokud jsou obě podmínky vyhodnoceny jako pravdivé je na výstupní porty barev přiřazena barva čtverce, v opačném případě projde barva pozadí nezměněna. 
+If both conditions are evaluated as true, the color of the square is assigned to the output ports; otherwise, the background color remains unchanged.
 
 ## Triangle segment
-Jako u segmentu Square, lze i zde nastavit barvu a velikost pomocí generic.
+Similarly to the Square segment, you can also set the color and size here using generics.
 
 ``` .vhdl
 triangle_width <= (unsigned(rowNum) - unsigned(rowOffset))/2;
@@ -181,26 +180,27 @@ Jedná se o rovnoramenný trojuhelník. Z pozice řádku a posunu tvaru ve verti
 (unsigned(colNum) > (unsigned(colOffset) + to_unsigned(size, h_nbit)/2 - triangle_width )) and
 (unsigned(colNum) < (unsigned(colOffset) + to_unsigned(size, h_nbit)/2 + triangle_width))
 ```
-Šířka trojuhelníku je poté využita v podmínce pro aktuální číslo sloupce.
+It's about an isosceles triangle. The width of the triangle on the current row is calculated from the row position and the shape offset in the vertical axis.
 
-Podmínka pro řádek a následné přiřazení barev na výstupy je stejná jako u segmentu Square
+The condition for the row and the subsequent assignment of colors to the outputs are the same as in the Square segment.
 
-## Instrukce
-Ovládání probíhá pomocí pěti tlačítek a devíti přepínačů na desce FPGA. 
+## Instructions
+Control is done using five buttons and nine switches on the FPGA board.
+
 - BTNC - Reset
-- BTNU - Posun obrazce nahoru
-- BTND - Posun obrazce dolů
-- BTNR - Posun obrazce doprava
-- BTNL - Posun obrazce left
-- SW0 - Červená nahoře
-- SW1 - Zelená nahoře
-- SW2 - Modrá nahoře
-- SW3 - Červená dole
-- SW4 - Zelená dole
-- SW5 - Modrá dole
-- SW6 - Směr gradientu
-- SW14 - Zobrazení čtverce
-- SW15 - Zobrazení trojúhelníku
+- BTNU - Move shape up
+- BTND - Move shape down
+- BTNR - Move shape right
+- BTNL - Move shape left
+- SW0 - Red on top
+- SW1 - Green on top
+- SW2 - Blue on top
+- SW3 - Red on bottom
+- SW4 - Green on bottom
+- SW5 - Blue on bottom
+- SW6 - Gradient direction
+- SW14 - Display square
+- SW15 - Display triangle
 
 [![nice](https://img.youtube.com/vi/8O0zno7WMLM/0.jpg)](https://www.youtube.com/watch?v=8O0zno7WMLM)
 
